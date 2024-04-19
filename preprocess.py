@@ -20,8 +20,20 @@ def preprocess_for_ocr(image):
     
     inverted = cv2.bitwise_not(closing)
     
-    
+
     return inverted
+
+def skew_image(image, angle):
+    # Get image dimensions
+    height, width = image.shape[:2]
+    
+    # Calculate the rotation matrix
+    rotation_matrix = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1)
+    
+    # Apply the affine transformation
+    skewed_image = cv2.warpAffine(image, rotation_matrix, (width, height), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+    
+    return skewed_image
 
 
 
