@@ -13,15 +13,18 @@ def resetter(string_dict):
         string_dict[key] = 0
 
 
-def black_box(image, x, y, w, h):
-    black_region = np.zeros((h, w, 3), dtype=np.uint8)
+def black_box(image, x, y, w, h,_):
+    if _!=0:
+       black_region= np.zeros((h, w, 3), dtype=np.uint8)
+    else: 
+        black_region=np.zeros((h,w), dtype=np.uint8)
     black_region.fill(0)  
     image[y:y+h, x:x+w] = black_region
     
     return image
 
 def blurrer(image):
-    height,width,_=image.shape
+    height, width, _ = image.shape if len(image.shape) == 3 else (*image.shape, 0)
     text_data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
     print(text_data['text'])
     for i in range(len(text_data['text'])):
@@ -29,7 +32,7 @@ def blurrer(image):
         for str in strings_to_check:
             if string_dict[str]==0:
                 if str in text.lower():
-                    incx=5000
+                    incx=5000                           #tweak these values to increase the size of the blur
                     incy=200
                     decx=1000
                     decy=100
@@ -45,7 +48,7 @@ def blurrer(image):
                         incy=height-y+decy
                 
                     x, y, w, h = text_data['left'][i]-decx, text_data['top'][i]-decy, incx, incy
-                    image = black_box(image, x, y, w, h)
+                    image = black_box(image, x, y, w, h,_)
                     string_dict[str]=1
                     string_dict['name']=string_dict['mane']
                     string_dict['address']=string_dict['addres']=string_dict['adress']
@@ -58,13 +61,14 @@ def blurrer(image):
 def identityremover(input_image_path,output_image_path):
     image=cv2.imread(input_image_path)
     image=blurrer(image)
-    #image=preprocess.preprocess_for_ocr(image)
-    #image=blurrer(image)                            #ek choti preprocess nagari image blur garne ani tyo blur gareko lai feri preprocess garera blur garne
+    image=preprocess.preprocess_for_ocr(image)      #comment out this line and line 65 for faster loading tara kunai kunai xutna sakne chance badi hunxaa
+    image=blurrer(image)                            #ek choti preprocess nagari image blur garne ani tyo blur gareko lai feri preprocess garera blur garne
     resetter(string_dict)
     cv2.imwrite(output_image_path,image)
-    return image                                       #aile lai euta pass le nai pugyo last ma lol
+    return image                                       
 
 
 
 
 
+#identityremover("reports_unedited/reports_6.jpg","helo.jpg")
