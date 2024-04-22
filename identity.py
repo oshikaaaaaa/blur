@@ -1,6 +1,7 @@
+import numpy as np
 import preprocess
 import pytesseract
-import numpy as np
+
 import cv2
 
 
